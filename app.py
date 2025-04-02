@@ -9,13 +9,14 @@ import matplotlib.animation as animation
 import tempfile
 import os
 import time
+import zipfile
 
 st.set_page_config(layout="wide")
 st.title("🌊 Water Level Multi-Task Forecasting")
 
 # Upload inputs
 st.sidebar.header("🔧 Configuration")
-model_file = st.sidebar.file_uploader("STEP 1: Upload trained LSTM model (.h5)", type=["h5"])
+model_file = st.sidebar.file_uploader("STEP 1: Upload trained LSTM model (.keras.zip)", type=["zip"])
 input_file = st.sidebar.file_uploader("STEP 2: Upload dataset CSV (datetime in 1st column)", type=["csv"])
 fps = st.sidebar.slider("Animation Speed (Frames per Second)", 1, 10, 4)
 
@@ -23,10 +24,14 @@ if model_file and input_file:
     if st.button("🚀 STEP 3: Start Forecasting"):
         try:
             forecast_start = time.time()
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".h5") as tmp:
-                tmp.write(model_file.getbuffer())
-                tmp_path = tmp.name
-            model = load_model(tmp_path)
+
+            # Unzip uploaded model into temp folder
+            unzip_dir = os.path.join(tempfile.gettempdir(), "keras_model")
+            os.makedirs(unzip_dir, exist_ok=True)
+            with zipfile.ZipFile(model_file, "r") as zip_ref:
+                zip_ref.extractall(unzip_dir)
+
+            model = load_model(unzip_dir, compile=False)
 
             # Load and scale data
             df_raw = pd.read_csv(input_file)
