@@ -15,7 +15,7 @@ st.title("🌊 Water Level Multi-Task Forecasting")
 
 # Upload inputs
 st.sidebar.header("🔧 Configuration")
-model_file = st.sidebar.file_uploader("STEP 1: Upload trained LSTM model (.keras file)", type=["keras"])
+model_file = st.sidebar.file_uploader("STEP 1: Upload trained LSTM model (.h5)", type=["h5"])
 input_file = st.sidebar.file_uploader("STEP 2: Upload dataset CSV (datetime in 1st column)", type=["csv"])
 fps = st.sidebar.slider("Animation Speed (Frames per Second)", 1, 10, 4)
 
@@ -23,14 +23,10 @@ if model_file and input_file:
     if st.button("🚀 STEP 3: Start Forecasting"):
         try:
             forecast_start = time.time()
-
-            # Save uploaded .keras model to a temp file
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".keras") as tmp:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".h5") as tmp:
                 tmp.write(model_file.getbuffer())
                 tmp_path = tmp.name
-
-            # Load the Keras 3.x model
-            model = load_model(tmp_path, compile=False)
+            model = load_model(tmp_path)
 
             # Load and scale data
             df_raw = pd.read_csv(input_file)
