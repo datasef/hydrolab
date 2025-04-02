@@ -23,10 +23,10 @@ if model_file and input_file:
     if st.button("🚀 STEP 3: Start Forecasting"):
         try:
             forecast_start = time.time()
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".h5") as tmp:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".keras") as tmp:
                 tmp.write(model_file.getbuffer())
                 tmp_path = tmp.name
-            model = load_model(tmp_path)
+            model = load_model(tmp_path,compile=False)
 
             # Load and scale data
             df_raw = pd.read_csv(input_file)
